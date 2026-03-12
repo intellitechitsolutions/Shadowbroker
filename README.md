@@ -36,10 +36,20 @@ Built with **Next.js**, **MapLibre GL**, **FastAPI**, and **Python**, it's desig
 
 ## ⚡ Quick Start (Docker or Podman)
 
+Linux/Mac
+
 ```bash
 git clone https://github.com/BigBodyCobain/Shadowbroker.git
 cd Shadowbroker
 ./compose.sh up -d
+```
+
+Windows
+
+```bash
+git clone https://github.com/BigBodyCobain/Shadowbroker.git
+cd Shadowbroker
+docker-compose up -d
 ```
 
 Open `http://localhost:3000` to view the dashboard! *(Requires Docker or Podman)*
