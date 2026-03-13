@@ -366,11 +366,11 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
         let entityLng = 0;
         if (selectedEntity && data) {
             let entity = null;
-            if (selectedEntity.type === 'flight') entity = data?.commercial_flights?.[selectedEntity.id as number];
-            else if (selectedEntity.type === 'private_flight') entity = data?.private_flights?.[selectedEntity.id as number];
-            else if (selectedEntity.type === 'military_flight') entity = data?.military_flights?.[selectedEntity.id as number];
-            else if (selectedEntity.type === 'private_jet') entity = data?.private_jets?.[selectedEntity.id as number];
-            else if (selectedEntity.type === 'tracked_flight') entity = data?.tracked_flights?.[selectedEntity.id as number];
+            if (selectedEntity.type === 'flight') entity = data?.commercial_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+            else if (selectedEntity.type === 'private_flight') entity = data?.private_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+            else if (selectedEntity.type === 'military_flight') entity = data?.military_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+            else if (selectedEntity.type === 'private_jet') entity = data?.private_jets?.find((f: any) => f.icao24 === selectedEntity.id);
+            else if (selectedEntity.type === 'tracked_flight') entity = data?.tracked_flights?.find((f: any) => f.icao24 === selectedEntity.id);
 
             if (entity && entity.callsign) {
                 callsign = entity.callsign;
@@ -799,7 +799,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
                 const [iLng, iLat] = interpFlight(f);
                 return {
                     type: 'Feature',
-                    properties: { id: i, type: 'flight', callsign: f.callsign || f.icao24, rotation: f.true_track || f.heading || 0, iconId: grounded ? GROUNDED_ICON_MAP[acType] : COLOR_MAP_COMMERCIAL[acType] },
+                    properties: { id: f.icao24 || i, type: 'flight', callsign: f.callsign || f.icao24, rotation: f.true_track || f.heading || 0, iconId: grounded ? GROUNDED_ICON_MAP[acType] : COLOR_MAP_COMMERCIAL[acType] },
                     geometry: { type: 'Point', coordinates: [iLng, iLat] }
                 };
             }).filter(Boolean)
@@ -819,7 +819,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
                 const [iLng, iLat] = interpFlight(f);
                 return {
                     type: 'Feature',
-                    properties: { id: i, type: 'private_flight', callsign: f.callsign || f.icao24, rotation: f.heading || 0, iconId: grounded ? GROUNDED_ICON_MAP[acType] : COLOR_MAP_PRIVATE[acType] },
+                    properties: { id: f.icao24 || i, type: 'private_flight', callsign: f.callsign || f.icao24, rotation: f.heading || 0, iconId: grounded ? GROUNDED_ICON_MAP[acType] : COLOR_MAP_PRIVATE[acType] },
                     geometry: { type: 'Point', coordinates: [iLng, iLat] }
                 };
             }).filter(Boolean)
@@ -839,7 +839,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
                 const [iLng, iLat] = interpFlight(f);
                 return {
                     type: 'Feature',
-                    properties: { id: i, type: 'private_jet', callsign: f.callsign || f.icao24, rotation: f.heading || 0, iconId: grounded ? GROUNDED_ICON_MAP[acType] : COLOR_MAP_JETS[acType] },
+                    properties: { id: f.icao24 || i, type: 'private_jet', callsign: f.callsign || f.icao24, rotation: f.heading || 0, iconId: grounded ? GROUNDED_ICON_MAP[acType] : COLOR_MAP_JETS[acType] },
                     geometry: { type: 'Point', coordinates: [iLng, iLat] }
                 };
             }).filter(Boolean)
@@ -867,7 +867,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
                 const [iLng, iLat] = interpFlight(f);
                 return {
                     type: 'Feature',
-                    properties: { id: i, type: 'military_flight', callsign: f.callsign || f.icao24, rotation: f.heading || 0, iconId },
+                    properties: { id: f.icao24 || i, type: 'military_flight', callsign: f.callsign || f.icao24, rotation: f.heading || 0, iconId },
                     geometry: { type: 'Point', coordinates: [iLng, iLat] }
                 };
             }).filter(Boolean)
@@ -894,7 +894,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
                 const [iLng, iLat] = interpShip(s);
                 return {
                     type: 'Feature',
-                    properties: { id: i, type: 'ship', name: s.name, rotation: s.heading || 0, iconId },
+                    properties: { id: s.mmsi || i, type: 'ship', name: s.name, rotation: s.heading || 0, iconId },
                     geometry: { type: 'Point', coordinates: [iLng, iLat] }
                 };
             }).filter(Boolean)
@@ -982,7 +982,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
                 if (s.type !== 'carrier' || s.lat == null || s.lng == null) return null;
                 return {
                     type: 'Feature',
-                    properties: { id: i, type: 'ship', name: s.name, rotation: s.heading || 0, iconId: 'svgCarrier' },
+                    properties: { id: s.mmsi || i, type: 'ship', name: s.name, rotation: s.heading || 0, iconId: 'svgCarrier' },
                     geometry: { type: 'Point', coordinates: [s.lng, s.lat] }
                 };
             }).filter(Boolean)
@@ -993,12 +993,12 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
         if (!selectedEntity || !data) return null;
 
         let entity = null;
-        if (selectedEntity.type === 'flight') entity = data?.commercial_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'private_flight') entity = data?.private_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'military_flight') entity = data?.military_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'private_jet') entity = data?.private_jets?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'tracked_flight') entity = data?.tracked_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'ship') entity = data?.ships?.[selectedEntity.id as number];
+        if (selectedEntity.type === 'flight') entity = data?.commercial_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'private_flight') entity = data?.private_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'military_flight') entity = data?.military_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'private_jet') entity = data?.private_jets?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'tracked_flight') entity = data?.tracked_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'ship') entity = data?.ships?.find((s: any) => s.mmsi === selectedEntity.id);
 
         if (!entity) return null;
 
@@ -1055,11 +1055,11 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
         if (!selectedEntity || !data) return null;
 
         let entity = null;
-        if (selectedEntity.type === 'flight') entity = data?.commercial_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'private_flight') entity = data?.private_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'military_flight') entity = data?.military_flights?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'private_jet') entity = data?.private_jets?.[selectedEntity.id as number];
-        else if (selectedEntity.type === 'tracked_flight') entity = data?.tracked_flights?.[selectedEntity.id as number];
+        if (selectedEntity.type === 'flight') entity = data?.commercial_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'private_flight') entity = data?.private_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'military_flight') entity = data?.military_flights?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'private_jet') entity = data?.private_jets?.find((f: any) => f.icao24 === selectedEntity.id);
+        else if (selectedEntity.type === 'tracked_flight') entity = data?.tracked_flights?.find((f: any) => f.icao24 === selectedEntity.id);
 
         if (!entity || !entity.trail || entity.trail.length < 2) return null;
         // Only show trail if this flight has no known route
@@ -1215,7 +1215,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
 
             features.push({
                 type: 'Feature',
-                properties: { id: i, type: 'tracked_flight', callsign: String(displayName), rotation: f.heading || 0, iconId },
+                properties: { id: f.icao24 || i, type: 'tracked_flight', callsign: String(displayName), rotation: f.heading || 0, iconId },
                 geometry: { type: 'Point', coordinates: [lng, lat] }
             });
         }
@@ -2502,7 +2502,7 @@ const MaplibreViewer = ({ data, activeLayers, onEntityClick, flyToLocation, sele
 
                 {/* Ship / carrier click popup */}
                 {selectedEntity?.type === 'ship' && (() => {
-                    const ship = data?.ships?.[selectedEntity.id as number];
+                    const ship = data?.ships?.find((s: any) => s.mmsi === selectedEntity.id);
                     if (!ship) return null;
                     const [iLng, iLat] = interpShip(ship);
                     return (

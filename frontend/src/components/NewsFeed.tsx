@@ -256,7 +256,7 @@ function NewsFeedInner({ data, selectedEntity, regionDossier, regionDossierLoadi
     }
 
     if (selectedEntity?.type === 'tracked_flight') {
-        const flight = data?.tracked_flights?.[selectedEntity.id as number];
+        const flight = data?.tracked_flights?.find((f: any) => f.icao24 === selectedEntity.id);
         if (flight) {
             const callsign = flight.callsign || "UNKNOWN";
             const alertColorMap: Record<string, string> = {
@@ -419,7 +419,7 @@ function NewsFeedInner({ data, selectedEntity, regionDossier, regionDossierLoadi
             : selectedEntity.type === 'private_flight' ? data?.private_flights
                 : selectedEntity.type === 'private_jet' ? data?.private_jets
                     : data?.military_flights;
-        const flight = flightsList?.[selectedEntity.id as number];
+        const flight = flightsList?.find((f: any) => f.icao24 === selectedEntity.id);
 
         if (flight) {
             const callsign = flight.callsign || "UNKNOWN";
@@ -538,7 +538,7 @@ function NewsFeedInner({ data, selectedEntity, regionDossier, regionDossierLoadi
     }
 
     if (selectedEntity?.type === 'ship') {
-        const ship = data?.ships?.[selectedEntity.id as number];
+        const ship = data?.ships?.find((s: any) => s.mmsi === selectedEntity.id);
         if (ship) {
             const vesselTypeLabels: Record<string, string> = {
                 'tanker': 'TANKER',
